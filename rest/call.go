@@ -40,20 +40,3 @@ func RenderUrl(url string, isHttps bool) string {
 		return url
 	}
 }
-
-func MethodI2S(v int) string {
-	switch v {
-		case 0:
-			return "GET"
-		case 1:
-			return "POST"
-		case 2:
-			return "PUT"
-		case 3:
-			return "PATCH"
-		case 5:
-			return "DELETE"
-		default:
-			return "GET"
-	}
-}

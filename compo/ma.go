@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var methods = []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
 
 type HttpMethodAndAddress struct {
 	HttpMethodOptions *widget.Select
@@ -17,7 +18,7 @@ type HttpMethodAndAddress struct {
 func NewHttpMethodAndAddress() HttpMethodAndAddress {
 	inputUrl := widget.NewEntry()
 	inputUrl.SetPlaceHolder("Enter url")
-	combo := widget.NewSelect([]string{"GET", "POST", "PUT", "PATCH", "DELETE"}, func(value string) {
+	combo := widget.NewSelect(methods, func(value string) {
 		log.Println("Select set to", value)
 	})
 	return HttpMethodAndAddress{
@@ -26,8 +27,8 @@ func NewHttpMethodAndAddress() HttpMethodAndAddress {
 	}
 }
 
-func (ma HttpMethodAndAddress) MethodIndex() int {
-	return ma.HttpMethodOptions.SelectedIndex() 
+func (ma HttpMethodAndAddress) Method() string {
+	return methods[ma.HttpMethodOptions.SelectedIndex()]
 }
 
 func (ma HttpMethodAndAddress) Address() string {
