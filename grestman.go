@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
+    "net/http/httputil"
 	"strings"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -13,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/kooltuoehias/grestman/compo"
+	"github.com/kooltuoehias/grestman/rest"
 )
 
 func main() {
@@ -29,82 +29,34 @@ func main() {
 	ls := compo.NewLatencyAndStatusCode()
 	headers := compo.NewHeaders()
 
+	responseTextGrid := widget.NewTextGrid()
+	var builder strings.Builder
 	button := widget.NewButton("Send", func() {
 
-		response, latency := call(methodI2S(ma.MethodIndex()), renderUrl(ma.Address(), https.Checked), headers.HeaderList())
-		data := [][]string{}
+		response, latency := rest.Call(rest.MethodI2S(ma.MethodIndex()), rest.RenderUrl(ma.Address(), https.Checked), headers.HeaderList())
 		for k, v := range response.Header {
 			value := strings.Join(v, " ")
-			data = append(data, []string{k, value})
+			builder.WriteString(k + ": " + value + "\n")
 		}
-		table := widget.NewTable(
-			func() (int, int) { return len(data), 2 },
-			func() fyne.CanvasObject { return widget.NewLabel("Template") },
-			func(i widget.TableCellID, o fyne.CanvasObject) {
-				o.(*widget.Label).SetText(data[i.Row][i.Col])
-			})
 		ls.Latency(fmt.Sprintf("latency: %dms", latency))
 		ls.Code(fmt.Sprintf("statusCode: %d", response.StatusCode))
-		vbox.Add(ls.Offer())
-		vbox.Add(table)
+		respDump, err := httputil.DumpResponse(response, true)
+		if err != nil {
+			responseTextGrid.SetText(fmt.Sprintf("%s\nError: %v", builder.String(), err))
+		} else {
+			responseTextGrid.SetText(builder.String() + "\n" + string(respDump))
+		}
+		builder.Reset()
+	
 	})
 
 	vbox.Add(https)
 	vbox.Add(ma.Offer())
 	vbox.Add(headers.Offer())
 	vbox.Add(button)
+	vbox.Add(ls.Offer())
+	vbox.Add(responseTextGrid)
 	myWindow.SetContent(vbox)
 	myWindow.ShowAndRun()
 }
 
-func call(method string, url string, headerList []string) (*http.Response, int64) {
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		fmt.Println(err)
-		return nil, 0
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	for _, v := range headerList {
-		headerAndValue := strings.Split(v, ":")
-		req.Header.Set(headerAndValue[0], headerAndValue[1])
-
-	}
-	start := time.Now()
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, 0
-	}
-	defer resp.Body.Close()
-	elapsed := time.Since(start).Milliseconds()
-	fmt.Printf("Request took %d milliseconds\n", elapsed)
-
-	return resp, elapsed
-}
-
-func renderUrl(url string, isHttps bool) string {
-	if isHttps {
-		return "https://" + url
-	} else {
-		return url
-	}
-}
-
-func methodI2S(v int) string {
-	switch v {
-		case 0:
-			return "GET"
-		case 1:
-			return "POST"
-		case 2:
-			return "PUT"
-		case 3:
-			return "PATCH"
-		case 5:
-			return "DELETE"
-		default:
-			return "GET"
-	}
-}
