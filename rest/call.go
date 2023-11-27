@@ -32,11 +32,3 @@ func Call(method string, url string, headerList []string) (*http.Response, int64
 
 	return resp, elapsed
 }
-
-func RenderUrl(url string, isHttps bool) string {
-	if isHttps {
-		return "https://" + url
-	} else {
-		return url
-	}
-}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -16,14 +15,11 @@ func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("grestman")
 	myWindow.Resize(fyne.NewSize(320, 640))
-	//vbox := container.NewGridWithRows(10)
 	vbox := container.New(layout.NewVBoxLayout())
-	https := widget.NewCheck("https", func(value bool) {
-		log.Println("Check set to", value)
-	})
+	https := widget.NewCheck("https", func(value bool) {})
 	https.SetChecked(true)
 
-	ma := compo.NewHttpMethodAndAddress()
+	ma := compo.NewHttpMethodAndAddress(https)
 	ls := compo.NewLatencyAndStatusCode()
 	headers := compo.NewHeaders()
 
