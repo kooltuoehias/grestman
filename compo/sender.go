@@ -37,7 +37,7 @@ func (sender Sender) Offer()  *widget.Button {
 		if err != nil {
 			sender.ResponseFullReceiver.SetText(fmt.Sprintf("%s\nError: %v", builder.String(), err))
 		} else {
-			sender.ResponseFullReceiver.SetText(builder.String() + "\n" + string(respDump))
+			sender.ResponseFullReceiver.SetText(string(respDump))
 		}
 		builder.Reset()
 	
