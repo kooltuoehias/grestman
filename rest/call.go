@@ -27,7 +27,6 @@ func Call(method string, url string, headerList []string) (*http.Response, int64
 		fmt.Println(err)
 		return nil, 0
 	}
-	defer resp.Body.Close()
 	elapsed := time.Since(start).Milliseconds()
 
 	return resp, elapsed

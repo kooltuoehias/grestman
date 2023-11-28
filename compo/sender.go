@@ -26,6 +26,7 @@ func (sender Sender) Offer()  *widget.Button {
 	return widget.NewButton("Send", func() {
 
 		response, latency := rest.Call(sender.SendMethodProvider.Method(), sender.SendUrlProvider.Address(), sender.SendHeadersProvider.HeaderList())
+		defer response.Body.Close()
 		for k, v := range response.Header {
 			value := strings.Join(v, " ")
 			builder.WriteString(k + ": " + value + "\n")
