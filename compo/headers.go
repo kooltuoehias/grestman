@@ -10,23 +10,21 @@ import (
 )
 
 type Headers struct {
-	headerList []string
+	data binding.ExternalStringList 
 }
 
 func NewHeaders() Headers {
 	return Headers {
-		headerList: []string{}, 
+		data: binding.BindStringList(
+			&[]string{},
+		),
 	}
 }
 
 func (headers Headers) Offer() *fyne.Container {
-	data := binding.BindStringList(
-		&headers.headerList,
-	)
-
 	newItemEntry := widget.NewEntry()
 	newItemEntry.SetPlaceHolder("New Header")
-	list := widget.NewListWithData(data,
+	list := widget.NewListWithData(headers.data,
 		func() fyne.CanvasObject {
 			return widget.NewLabel("template")
 		},
@@ -36,11 +34,12 @@ func (headers Headers) Offer() *fyne.Container {
 
 	add := widget.NewButton("Add Header", func() {
 		val := fmt.Sprintf(newItemEntry.Text)
-		data.Append(val)
+		headers.data.Append(val)
 	})
 	return container.NewBorder(newItemEntry, add, nil, nil, list)
 }
 
 func (headers Headers) HeaderList() []string {
-	return headers.headerList
+	result,_ := headers.data.Get()
+	return result;
 } 
